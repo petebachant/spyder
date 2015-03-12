@@ -27,6 +27,7 @@ import sys
 import re
 import os.path as osp
 import shutil
+import subprocess
 
 # Local imports
 from spyderlib.utils.qthelpers import (get_icon, create_action, add_actions,
@@ -287,6 +288,7 @@ class DirView(QTreeView):
     def create_folder_manage_actions(self, fnames):
         """Return folder management actions"""
         actions = []
+        # Open internal command prompt or terminal
         if os.name == 'nt':
             _title = _("Open command prompt here")
         else:
@@ -295,6 +297,16 @@ class DirView(QTreeView):
                                triggered=lambda:
                                self.open_terminal(fnames))
         actions.append(action)
+        # Open external command prompt or terminal
+        if os.name == 'nt':
+            _title = _("Open external command prompt here")
+        else:
+            _title = _("Open external terminal here")
+        action = create_action(self, _title, icon="cmdprompt.png",
+                               triggered=lambda:
+                               self.open_ext_terminal(fnames))
+        actions.append(action)
+        # Open Python console
         _title = _("Open Python console here")
         action = create_action(self, _title, icon="python.png",
                                triggered=lambda:
@@ -438,6 +450,11 @@ class DirView(QTreeView):
         """Open terminal"""
         for path in sorted(fnames):
             self.parent_widget.open_terminal.emit(path)
+            
+    def open_ext_terminal(self, fnames):
+        """Open external terminal."""
+        for path in sorted(fnames):
+            self.parent_widget.open_ext_terminal.emit(path)
             
     def open_interpreter(self, fnames):
         """Open interpreter"""
